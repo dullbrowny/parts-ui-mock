@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-// ---- Theme ----
+/** ============ THEME (unchanged) ============ */
 const theme = {
   header: {
     bg: "bg-[#0070D2]",
@@ -20,7 +20,58 @@ const theme = {
   },
 };
 
-// ---------- Shared UI ----------
+/** ============ MOCK DATA ============ */
+const MOCK_CUSTOMER = {
+  name: "Jordan Example",
+  property: "Sample Property",
+  balance: "£1,000.00",
+};
+
+const MOCK_WORKS = [
+  { date: "2025-08-10", type: "Repair job", desc: "Pilot light issue", next: "2025-09-02" },
+  { date: "2025-08-11", type: "Repair job", desc: "Pilot light issue", next: "2025-09-03" },
+  { date: "2025-08-12", type: "Repair job", desc: "Pilot light issue", next: "2025-09-04" },
+];
+
+const MOCK_INVOICES = [
+  { date: "2024-11-20", type: "Invoice", no: "#A101", desc: "Annual service", total: "£875.00" },
+  { date: "2024-11-21", type: "Invoice", no: "#A102", desc: "Annual service", total: "£995.00" },
+  { date: "2024-11-22", type: "Invoice", no: "#A103", desc: "Annual service", total: "£1,115.00" },
+];
+
+const SAMPLE_RESULTS = [
+  { id: "p1", name: "EXAMPLE — Hex Head Screw 16mm", sku: "SKU-001", price: 3.08, relevance: "High", supplier: "SampleCo" },
+  { id: "p2", name: "EXAMPLE — Slotted Hex 16mm", sku: "SKU-002", price: 10.28, relevance: "Medium", supplier: "SampleCo" },
+  { id: "p3", name: "GENERIC — M16 x 1.5 Hex Bolt (Zinc)", sku: "GEN-016", price: 1.75, relevance: "Low", supplier: "Generic" },
+];
+
+/** ============ SMALL UTILS ============ */
+const Avatar = ({ seed, size = 32, className = "" }) => {
+  // Primary: DiceBear initials (no auth or local files).
+  const src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear`;
+  // Fallback: simple gray circle
+  const fallback =
+    "data:image/svg+xml;charset=utf-8," +
+    encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'><rect width='100%' height='100%' rx='${size/2}' fill='#E5E7EB'/></svg>`
+    );
+  return (
+    <img
+      src={src}
+      alt={seed}
+      width={size}
+      height={size}
+      className={`rounded-full border ${className}`}
+      referrerPolicy="no-referrer"
+      crossOrigin="anonymous"
+      onError={(e) => {
+        if (e.currentTarget.src !== fallback) e.currentTarget.src = fallback;
+      }}
+    />
+  );
+};
+
+/** ============ SHARED UI ============ */
 function Card({ title, actions, children, className = "" }) {
   return (
     <div className={`rounded-md border border-gray-200 bg-white shadow-sm ${className}`}>
@@ -35,7 +86,7 @@ function Card({ title, actions, children, className = "" }) {
   );
 }
 
-// ---------- Header / Top bar (NAV ONLY) ----------
+/** ============ HEADER / NAV ============ */
 function TopBar() {
   return (
     <header className={`w-full ${theme.header.bg} shadow`}>
@@ -70,28 +121,28 @@ function CustomerHeader() {
           Active
         </span>
         <span className="rounded px-2 py-0.5 text-xs font-medium bg-rose-600 text-white">
-          £1,200.00
+          {MOCK_CUSTOMER.balance}
         </span>
       </div>
       <div className="ml-3 text-sm text-gray-700">
-        Customer: <span className="font-semibold">Mr James Spencer</span> / Property
+        Customer: <span className="font-semibold">{MOCK_CUSTOMER.name}</span> / {MOCK_CUSTOMER.property}
       </div>
       <div className="ml-auto">🔔</div>
     </div>
   );
 }
 
-// ---------- Left column ----------
+/** ============ LEFT COLUMN ============ */
 function LeftColumn() {
-  // example coords (central London). Replace with real job/customer coords later.
-  const lat = 51.5074;
-  const lon = -0.1278;
-  const delta = 0.02; // map zoom
+  // generic center (not a real address)
+  const lat = 51.505; // mock
+  const lon = -0.09;  // mock
+  const delta = 0.02;
   const bbox = `${lon - delta}%2C${lat - delta}%2C${lon + delta}%2C${lat + delta}`;
 
   return (
     <div className="space-y-3">
-      {/* Realistic map */}
+      {/* Map (generic area) */}
       <Card>
         <div className="relative">
           <div className="h-32 md:h-40 overflow-hidden rounded-md border border-gray-200">
@@ -102,25 +153,18 @@ function LeftColumn() {
               src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}`}
             />
           </div>
-          <a
-            href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`}
-            target="_blank"
-            rel="noreferrer"
-            className="absolute bottom-1 right-2 text-[10px] text-gray-500 bg-white/80 px-1 rounded"
-          >
-            © OpenStreetMap
-          </a>
+          <span className="absolute bottom-1 right-2 text-[10px] text-gray-500 bg-white/80 px-1 rounded">
+            © OpenStreetMap (mock location)
+          </span>
         </div>
       </Card>
 
-      {/* Customers viewing this (two small circular images) */}
+      {/* Customers viewing this (mock avatars) */}
       <div className="flex items-center gap-2 mt-2">
         <span className="text-sm text-gray-700 font-medium">Customers viewing this</span>
-        <img src="/customer1.jpg" alt="Customer 1" className="w-8 h-8 rounded-full border" />
-        <img src="/customer2.jpg" alt="Customer 2" className="w-8 h-8 rounded-full border" />
+        <Avatar seed="AA" />
+        <Avatar seed="BB" />
       </div>
-
-      {/* (Removed the old 'Currently viewing this customer' avatar card to avoid duplication) */}
 
       <Card title="Service reminders">
         <ul className="text-sm text-gray-700 space-y-1">
@@ -135,9 +179,7 @@ function LeftColumn() {
       <Card title="Contracts">
         <div className="text-sm text-gray-700 flex items-center gap-2">
           Gold Service Plan (Expires:{" "}
-          <span className={`rounded px-1.5 py-0.5 text-xs ${theme.chip.success}`}>
-            128 days
-          </span>
+          <span className={`rounded px-1.5 py-0.5 text-xs ${theme.chip.success}`}>128 days</span>
           )
         </div>
       </Card>
@@ -156,7 +198,7 @@ function LeftColumn() {
   );
 }
 
-// ---------- Notes (above tab row) ----------
+/** ============ NOTES ============ */
 function NotesCard({ title, content, chipText, chipColor }) {
   return (
     <Card title={title}>
@@ -168,17 +210,9 @@ function NotesCard({ title, content, chipText, chipColor }) {
   );
 }
 
-// ---------- Tabs ----------
+/** ============ TABS ============ */
 function TabsRow({ active, onSelect }) {
-  const tabs = [
-    "All works",
-    "Communications",
-    "Contacts",
-    "Branches",
-    "Work address",
-    "Assets",
-    "Files",
-  ];
+  const tabs = ["All works", "Communications", "Contacts", "Branches", "Work address", "Assets", "Files"];
   return (
     <div className="mb-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -196,22 +230,14 @@ function TabsRow({ active, onSelect }) {
           </button>
         ))}
         <div className="ml-auto">
-          <button className={`rounded-md px-3 py-1 text-sm ${theme.buttons.ghost}`}>
-            Quick links ▾
-          </button>
+          <button className={`rounded-md px-3 py-1 text-sm ${theme.buttons.ghost}`}>Quick links ▾</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ---------- Parts Finder (list layout) ----------
-const SAMPLE_RESULTS = [
-  { id: "p1", name: "WORCESTER – 29111311580 Hex Head Screw 16mm", sku: "29111311580", price: 3.08, relevance: "High", supplier: "Worcester" },
-  { id: "p2", name: "WORCESTER – 87155021140 Slotted Hex 16mm", sku: "87155021140", price: 10.28, relevance: "Medium", supplier: "Worcester" },
-  { id: "p3", name: "GENERIC – M16 x 1.5 Hex Bolt (Zinc)", sku: "GEN-HEX-16", price: 1.75, relevance: "Low", supplier: "Generic" },
-];
-
+/** ============ PARTS FINDER (drawer list) ============ */
 function ResultRow({ item, onCopySKU, onAddToJob }) {
   return (
     <div className="flex items-start gap-3 py-2 border-b last:border-0">
@@ -279,7 +305,6 @@ function PartsFinderPanel({ compact }) {
     <div className={compact? "space-y-3" : "space-y-4"}>
       <div className="text-base font-semibold">Find a part</div>
       <PartsFinderControls {...{query,setQuery,engine,setEngine,topK,setTopK,model,setModel,type,setType}}/>
-      {/* Single scrollable list for the narrow drawer */}
       <div className="mt-1 -mx-2 px-2 max-h-[60vh] overflow-y-auto border rounded">
         {results.map((r)=>(
           <ResultRow key={r.id} item={r} onCopySKU={(sku)=>navigator.clipboard.writeText(sku)} onAddToJob={addToJob}/>
@@ -292,7 +317,7 @@ function PartsFinderPanel({ compact }) {
   );
 }
 
-// ---------- Verba Chat (contextual companion) ----------
+/** ============ VERBA CHAT ============ */
 function VerbaChat({ context }) {
   const [messages, setMessages] = useState([
     { role: 'system', text: `Context: ${context.module} | Customer: ${context.customer}` },
@@ -322,7 +347,7 @@ function VerbaChat({ context }) {
   );
 }
 
-// ---------- Drawer with tabs ----------
+/** ============ RIGHT DRAWER ============ */
 function RightDrawer({ open, onClose, tab, setTab, context }) {
   return (
     <div className={`fixed inset-0 z-40 ${open? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
@@ -337,7 +362,6 @@ function RightDrawer({ open, onClose, tab, setTab, context }) {
           <button onClick={onClose} className={`rounded-md px-2 py-1 text-sm ${theme.buttons.ghost}`}>Close</button>
         </div>
 
-        {/* scrollable content area inside the drawer */}
         <div className="pt-3 h-[calc(100%-52px)] overflow-y-auto">
           <div className="mb-3 flex gap-2 sticky top-0 bg-white pb-2">
             <button onClick={()=>setTab('search')} className={`rounded px-2 py-1 text-sm border ${tab==='search'?'bg-sky-50 border-sky-200 text-sky-900':'bg-white'}`}>Find a part</button>
@@ -350,7 +374,7 @@ function RightDrawer({ open, onClose, tab, setTab, context }) {
   );
 }
 
-// ---------- Tables wrapper (RIGHT) with actions in header ----------
+/** ============ RIGHT-COLUMN TABLES ============ */
 function OngoingHistoryTables({ onOpenDrawer }) {
   return (
     <div className="space-y-3">
@@ -377,12 +401,12 @@ function OngoingHistoryTables({ onOpenDrawer }) {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: 3 }).map((_, i) => (
+              {MOCK_WORKS.map((w, i) => (
                 <tr key={i} className="odd:bg-white even:bg-gray-50">
-                  <td className="px-3 py-2">2025-08-1{i}</td>
-                  <td className="px-3 py-2">Repair job</td>
-                  <td className="px-3 py-2">Pilot light issue</td>
-                  <td className="px-3 py-2">2025-09-0{i+2}</td>
+                  <td className="px-3 py-2">{w.date}</td>
+                  <td className="px-3 py-2">{w.type}</td>
+                  <td className="px-3 py-2">{w.desc}</td>
+                  <td className="px-3 py-2">{w.next}</td>
                   <td className="px-3 py-2"><button className="text-sky-700 hover:underline">Edit</button></td>
                 </tr>
               ))}
@@ -406,13 +430,13 @@ function OngoingHistoryTables({ onOpenDrawer }) {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: 3 }).map((_, i) => (
+              {MOCK_INVOICES.map((inv, i) => (
                 <tr key={i} className="odd:bg-white even:bg-gray-50">
-                  <td className="px-3 py-2">2024-11-2{i}</td>
-                  <td className="px-3 py-2">Invoice</td>
-                  <td className="px-3 py-2">#{1000+i}</td>
-                  <td className="px-3 py-2">Annual service</td>
-                  <td className="px-3 py-2">£{(120*i+875).toFixed(2)}</td>
+                  <td className="px-3 py-2">{inv.date}</td>
+                  <td className="px-3 py-2">{inv.type}</td>
+                  <td className="px-3 py-2">{inv.no}</td>
+                  <td className="px-3 py-2">{inv.desc}</td>
+                  <td className="px-3 py-2">{inv.total}</td>
                   <td className="px-3 py-2">£0.00</td>
                   <td className="px-3 py-2"><button className="text-sky-700 hover:underline">View</button></td>
                 </tr>
@@ -425,27 +449,26 @@ function OngoingHistoryTables({ onOpenDrawer }) {
   );
 }
 
-// ---- App ----
+/** ============ APP ============ */
 export default function CommusoftFSMMock() {
-  const [activeTab, setActiveTab] = useState('All works');
+  const [activeTab, setActiveTab] = useState("All works");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState('search'); // 'search' | 'verba'
+  const [drawerTab, setDrawerTab] = useState("search");
 
-  // Intercept Cmd/Ctrl+K to open Verba in the drawer
   useEffect(() => {
     function onKey(e) {
-      const isMac = navigator.platform.toUpperCase().includes('MAC');
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      const isMac = navigator.platform.toUpperCase().includes("MAC");
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setDrawerTab('verba');
+        setDrawerTab("verba");
         setDrawerOpen(true);
       }
     }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const context = { module: 'parts', customer: 'Mr James Spencer' };
+  const context = { module: "parts", customer: MOCK_CUSTOMER.name };
 
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
@@ -456,8 +479,8 @@ export default function CommusoftFSMMock() {
         <div className="md:col-span-1"><LeftColumn /></div>
         <div className="md:col-span-2 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <NotesCard title="Notes" content="Urgent boiler leak follow-up required" chipText="Important" chipColor="bg-red-100 text-red-700" />
-            <NotesCard title="Notes" content="Annual service scheduled for September" chipText="Reminder" chipColor="bg-yellow-100 text-yellow-800" />
+            <NotesCard title="Notes" content="Urgent boiler leak follow-up required (mock)" chipText="Important" chipColor="bg-red-100 text-red-700" />
+            <NotesCard title="Notes" content="Annual service scheduled for September (mock)" chipText="Reminder" chipColor="bg-yellow-100 text-yellow-800" />
           </div>
           <TabsRow active={activeTab} onSelect={setActiveTab} />
           <OngoingHistoryTables onOpenDrawer={(which)=>{ setDrawerTab(which); setDrawerOpen(true); }} />
